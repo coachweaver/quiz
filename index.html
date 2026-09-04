@@ -1,1151 +1,601 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Which Pit Crew Team Are You?</title>
-  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Which Crew Are You? | Pit Crew</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<style>
+  :root {
+    --navy: #00205b;
+    --blue: #6495ed;
+    --white: #ffffff;
+    --line: rgba(255,255,255,0.2);
+    --dim: rgba(255,255,255,0.65);
+  }
 
-    :root {
-      --bg: #FDF7F0;
-      --bg2: #FFF3E8;
-      --card: #FFFFFF;
-      --text: #1A2744;
-      --text2: #4A5568;
-      --muted: #8A96A8;
-      --border: #E8E0D8;
-      --orange: #F2640A;
-      --orange-light: #FF8C42;
-      --orange-pale: #FFF0E6;
-      --orange-mid: #FFD4B8;
-      --blue: #1348A0;
-      --blue-mid: #2563EB;
-      --blue-light: #60A5FA;
-      --amber: #F59E0B;
-      --shadow-sm: 0 1px 4px rgba(26,39,68,0.06), 0 2px 8px rgba(26,39,68,0.04);
-      --shadow-md: 0 4px 16px rgba(26,39,68,0.10), 0 1px 4px rgba(26,39,68,0.06);
-      --shadow-lg: 0 8px 32px rgba(26,39,68,0.12), 0 2px 8px rgba(26,39,68,0.06);
-      --radius: 16px;
-      --font-display: 'Righteous', cursive;
-      --font-body: 'Nunito', sans-serif;
-    }
+  * { box-sizing: border-box; }
 
-    html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--navy);
+    color: var(--white);
+    font-family: Arial, Helvetica, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+  }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-body);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+  main { width: min(90%, 700px); }
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 60% 40% at 15% 10%, rgba(242,100,10,0.07) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 50% at 85% 90%, rgba(19,72,160,0.06) 0%, transparent 60%),
-        radial-gradient(ellipse 40% 30% at 50% 50%, rgba(245,158,11,0.04) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
+  h1 {
+    margin: 0;
+    font-size: clamp(3rem, 10vw, 5.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+  }
 
-    .wrapper {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 16px 56px;
-    }
+  .divider {
+    width: 60px;
+    height: 5px;
+    margin: 28px 0;
+    background: var(--blue);
+  }
+  .center .divider { margin: 28px auto; }
 
-    /* ── PROGRESS BAR ── */
-    .progress-bar-wrap {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      height: 6px;
-      background: var(--border);
-      z-index: 100;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--orange), var(--amber), var(--blue-mid));
-      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      border-radius: 0 4px 4px 0;
-    }
+  p { margin: 0 0 24px; font-size: 1.05rem; line-height: 1.6; }
+  .center { text-align: center; }
+  .center p { max-width: 500px; margin: 0 auto 36px; }
 
-    /* ── SCREENS ── */
-    .screen { display: none; width: 100%; max-width: 600px; }
-    .screen.active { display: flex; flex-direction: column; align-items: center; }
+  .button {
+    display: inline-block;
+    min-width: 190px;
+    padding: 16px 24px;
+    border: 2px solid var(--blue);
+    background: var(--blue);
+    color: var(--navy);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .button:hover { background: var(--white); border-color: var(--white); }
+  .button.secondary { background: transparent; color: var(--white); }
+  .button.secondary:hover { background: var(--white); color: var(--navy); }
 
-    /* ── INTRO SCREEN ── */
-    .intro-eyebrow {
-      font-family: var(--font-display);
-      font-size: 12px;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--orange);
-      margin-bottom: 14px;
-    }
+  .links { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
 
-    .intro-title {
-      font-family: var(--font-display);
-      font-size: clamp(38px, 10vw, 62px);
-      line-height: 1.05;
-      text-align: center;
-      margin-bottom: 12px;
-      color: var(--text);
-    }
+  /* ── screens ── */
+  .screen { display: none; }
+  .screen.on { display: block; }
 
-    .intro-title span.flame {
-      background: linear-gradient(135deg, var(--orange) 0%, var(--amber) 60%, var(--blue-mid) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+  /* ── quiz ── */
+  .counter {
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 0.15em;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .progress { height: 4px; background: var(--line); margin-bottom: 30px; }
+  .progress span { display: block; height: 100%; width: 0; background: var(--blue); transition: width 0.3s ease; }
 
-    .intro-sub {
-      font-size: clamp(15px, 4vw, 17px);
-      color: var(--text2);
-      text-align: center;
-      margin-bottom: 40px;
-      max-width: 380px;
-      line-height: 1.6;
-    }
+  .question {
+    margin: 0 0 28px;
+    font-size: clamp(1.4rem, 4.5vw, 2rem);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+  }
 
-    /* ── BUTTONS ── */
-    .btn {
-      font-family: var(--font-display);
-      font-size: 17px;
-      letter-spacing: 0.5px;
-      padding: 16px 48px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    .btn:active { transform: scale(0.97); }
+  .answers { display: flex; flex-direction: column; gap: 10px; }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--orange), var(--amber));
-      color: #fff;
-      box-shadow: 0 4px 20px rgba(242,100,10,0.35);
-    }
-    .btn-primary:hover {
-      box-shadow: 0 6px 28px rgba(242,100,10,0.45);
-      transform: translateY(-2px);
-    }
+  .answer {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+    text-align: left;
+    padding: 16px 18px;
+    border: 2px solid var(--line);
+    background: transparent;
+    color: var(--white);
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.45;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  }
+  .answer:hover { border-color: var(--blue); background: rgba(100,149,237,0.14); }
+  .answer:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  .answer b { color: var(--blue); font-size: 0.9rem; padding-top: 2px; }
+  .answer.picked { background: var(--blue); border-color: var(--blue); color: var(--navy); }
+  .answer.picked b { color: var(--navy); }
+  .answer.dim { opacity: 0.3; }
+  .answers.locked .answer { pointer-events: none; }
 
-    .btn-ghost {
-      background: var(--card);
-      color: var(--text2);
-      border: 1.5px solid var(--border);
-      font-family: var(--font-body);
-      font-weight: 800;
-      font-size: 14px;
-      letter-spacing: 0.2px;
-      padding: 13px 30px;
-      margin-top: 14px;
-      box-shadow: var(--shadow-sm);
-    }
-    .btn-ghost:hover {
-      border-color: var(--blue-light);
-      color: var(--blue);
-      transform: translateY(-2px);
-    }
+  /* ── crew page ── */
+  .tabs { display: flex; border-bottom: 2px solid var(--line); margin-bottom: 34px; }
+  .tab {
+    flex: 1;
+    padding: 12px 4px;
+    border: none;
+    border-bottom: 4px solid transparent;
+    margin-bottom: -2px;
+    background: transparent;
+    color: var(--dim);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .tab:hover { color: var(--white); }
+  .tab.on { color: var(--white); border-bottom-color: var(--blue); }
 
-    .btn-restart {
-      background: var(--card);
-      color: var(--text2);
-      border: 1.5px solid var(--border);
-      font-size: 14px;
-      padding: 12px 32px;
-      margin-top: 16px;
-      box-shadow: var(--shadow-sm);
-    }
-    .btn-restart:hover { border-color: var(--orange-light); color: var(--orange); }
+  .flag {
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 10px;
+  }
 
-    /* ── QUESTION SCREEN ── */
-    .q-header {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
+  .pitch { font-size: 1.15rem; font-weight: bold; margin: 0 0 18px; }
 
-    .q-step {
-      font-family: var(--font-display);
-      font-size: 12px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--orange);
-    }
+  .specs {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 30px;
+    font-size: 0.9rem;
+    color: var(--dim);
+  }
+  .specs b { color: var(--white); }
 
-    .q-count-badge {
-      background: var(--card);
-      border: 1.5px solid var(--border);
-      border-radius: 999px;
-      padding: 4px 14px;
-      font-family: var(--font-display);
-      font-size: 12px;
-      color: var(--text2);
-      box-shadow: var(--shadow-sm);
-    }
+  h2.sec {
+    margin: 0 0 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+  .block { margin-bottom: 30px; }
 
-    .q-card {
-      background: var(--card);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: clamp(20px, 5vw, 36px);
-      width: 100%;
-      box-shadow: var(--shadow-md);
-      position: relative;
-      overflow: hidden;
-    }
+  ul { margin: 0; padding: 0; list-style: none; }
+  ul li {
+    padding: 9px 0 9px 18px;
+    position: relative;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-bottom: 1px solid var(--line);
+  }
+  ul li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 17px;
+    width: 7px;
+    height: 7px;
+    background: var(--blue);
+  }
 
-    .q-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--orange), var(--amber), var(--blue-mid));
-    }
+  .score { display: flex; align-items: center; gap: 12px; padding: 6px 0; font-size: 0.9rem; }
+  .score span:first-child { width: 120px; flex-shrink: 0; color: var(--dim); }
+  .score .track { flex: 1; height: 8px; background: var(--line); }
+  .score .track i { display: block; height: 100%; width: 0; background: var(--blue); transition: width 0.6s ease; }
+  .score b { width: 16px; flex-shrink: 0; }
 
-    .q-emoji {
-      font-size: 32px;
-      margin-bottom: 12px;
-      display: block;
-    }
+  .foot { margin-top: 34px; padding-top: 24px; border-top: 1px solid var(--line); }
 
-    .q-text {
-      font-size: clamp(17px, 4.5vw, 22px);
-      font-weight: 800;
-      line-height: 1.35;
-      color: var(--text);
-      margin-bottom: 24px;
-    }
+  @media (max-width: 500px) {
+    .links { flex-direction: column; }
+    .links .button { width: 100%; }
+    .tab { font-size: 0.68rem; padding: 10px 2px; }
+    .score span:first-child { width: 88px; font-size: 0.8rem; }
+  }
 
-    /* ── 2x2 ANSWER GRID ── */
-    .answers-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .answer-tile {
-      background: var(--bg2);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 14px;
-      text-align: center;
-      cursor: pointer;
-      font-family: var(--font-body);
-      font-size: clamp(13px, 3.2vw, 15px);
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.4;
-      min-height: 90px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: border-color 0.18s ease, background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
-      position: relative;
-      overflow: hidden;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .answer-tile:hover {
-      border-color: var(--orange-light);
-      background: var(--orange-pale);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .answer-tile:active { transform: scale(0.97); }
-
-    .answer-tile.selected {
-      background: linear-gradient(135deg, var(--orange), var(--amber));
-      border-color: var(--orange);
-      color: #fff;
-      box-shadow: 0 4px 18px rgba(242,100,10,0.28);
-      transform: scale(1.02);
-    }
-
-    .answer-tile.faded {
-      opacity: 0.35;
-      pointer-events: none;
-    }
-
-    .answer-tile .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(242,100,10,0.2);
-      transform: scale(0);
-      animation: ripple-out 0.5s linear;
-      pointer-events: none;
-    }
-    @keyframes ripple-out {
-      to { transform: scale(4); opacity: 0; }
-    }
-
-    /* ── RESULT SCREEN ── */
-    .result-badge {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      margin-bottom: 16px;
-      border: 3px solid;
-      box-shadow: var(--shadow-lg);
-      position: relative;
-      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
-    }
-
-    .result-badge::after {
-      content: '';
-      position: absolute;
-      inset: -10px;
-      border-radius: 50%;
-      border: 2px solid currentColor;
-      opacity: 0.2;
-      animation: pulse-ring 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse-ring {
-      0%, 100% { transform: scale(1); opacity: 0.2; }
-      50% { transform: scale(1.1); opacity: 0.07; }
-    }
-
-    .result-your-result {
-      font-family: var(--font-display);
-      font-size: 11px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .result-fit-label {
-      font-family: var(--font-display);
-      font-size: 13px;
-      letter-spacing: 1px;
-      margin-bottom: 6px;
-      transition: color 0.3s;
-    }
-
-    .result-team-name {
-      font-family: var(--font-display);
-      font-size: clamp(30px, 8vw, 48px);
-      text-align: center;
-      line-height: 1.1;
-      margin-bottom: 24px;
-      transition: color 0.3s;
-    }
-
-    /* ── TEAM TOGGLE TABS ── */
-    .team-tabs {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      width: 100%;
-      margin-bottom: 16px;
-    }
-
-    .team-tab {
-      background: var(--card);
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 6px 8px;
-      text-align: center;
-      cursor: pointer;
-      font-family: var(--font-body);
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--text2);
-      transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.15s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .team-tab:hover { transform: translateY(-2px); }
-
-    .team-tab .tab-emoji { font-size: 20px; }
-    .team-tab .tab-name { font-family: var(--font-display); font-size: 10px; line-height: 1.2; }
-
-    .team-tab.active-tab {
-      color: #fff;
-      border-color: transparent;
-      box-shadow: var(--shadow-md);
-    }
-
-    .winner-crown {
-      font-size: 10px;
-      display: block;
-      margin-bottom: 1px;
-    }
-
-    /* ── RESULT CARD ── */
-    .result-card {
-      background: var(--card);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: clamp(22px, 5vw, 36px);
-      width: 100%;
-      text-align: center;
-      box-shadow: var(--shadow-lg);
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.3s;
-    }
-
-    .result-card-bar {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      transition: background 0.3s;
-    }
-
-    .result-tagline {
-      font-size: clamp(14px, 3.5vw, 16px);
-      font-weight: 800;
-      font-style: italic;
-      margin-bottom: 14px;
-      transition: color 0.3s;
-    }
-
-    .result-desc {
-      font-size: clamp(14px, 3.5vw, 16px);
-      line-height: 1.8;
-      color: var(--text2);
-      margin-bottom: 22px;
-      text-align: left;
-    }
-
-    .result-traits {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 26px;
-    }
-
-    .trait-tag {
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      border: 1.5px solid;
-      transition: background 0.3s, color 0.3s, border-color 0.3s;
-    }
-
-    .score-section { width: 100%; }
-    .score-label {
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
-      text-align: left;
-    }
-    .score-rows { display: flex; flex-direction: column; gap: 8px; }
-    .score-row { display: flex; align-items: center; gap: 10px; }
-    .score-row-name {
-      font-family: var(--font-display);
-      font-size: 11px;
-      width: 110px;
-      text-align: right;
-      flex-shrink: 0;
-      color: var(--text2);
-    }
-    .score-row-track {
-      flex: 1;
-      height: 8px;
-      background: var(--bg2);
-      border-radius: 99px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-    .score-row-fill {
-      height: 100%;
-      border-radius: 99px;
-      width: 0%;
-      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .score-row-num {
-      font-family: var(--font-display);
-      font-size: 11px;
-      color: var(--muted);
-      width: 18px;
-      text-align: left;
-      flex-shrink: 0;
-    }
-
-    /* ── CONFETTI ── */
-    .confetti-canvas {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 999;
-    }
-
-    @media (max-width: 400px) {
-      .answer-tile { font-size: 12px; padding: 12px 10px; min-height: 80px; }
-      .answers-grid { gap: 8px; }
-      .team-tab .tab-name { font-size: 9px; }
-    }
-  </style>
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
 </head>
 <body>
+<main>
 
-<canvas class="confetti-canvas" id="confettiCanvas"></canvas>
-
-<div class="progress-bar-wrap">
-  <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
-</div>
-
-<div class="wrapper">
-
-  <!-- ══ INTRO SCREEN ══ -->
-  <div class="screen active" id="screen-intro">
-    <p class="intro-eyebrow">Pit Crew</p>
-    <h1 class="intro-title">Which Team<br>Are <span class="flame">You?</span></h1>
-    <p class="intro-sub">15 questions. No wrong answers. Discover which team might be the best fit for you.</p>
-    <button class="btn btn-primary" onclick="startQuiz()">Let's Find Out</button>
-    <button class="btn btn-ghost" onclick="browseTeams()">Skip the quiz, show me the teams</button>
-  </div>
-
-  <!-- ══ QUESTION SCREEN ══ -->
-  <div class="screen" id="screen-question">
-    <div class="q-header">
-      <span class="q-step" id="qStep">Question 1</span>
-      <span class="q-count-badge" id="qCount">1 of 15</span>
+  <!-- ══ START ══ -->
+  <section class="screen on center" id="start">
+    <h1>Which Crew<br>Are You?</h1>
+    <div class="divider"></div>
+    <p>Four crews run every pep rally. Fifteen questions, no wrong answers, and a real job description at the end.</p>
+    <div class="links">
+      <button class="button" onclick="startQuiz()">Take the Quiz</button>
+      <button class="button secondary" onclick="browseCrews()">See the Crews</button>
     </div>
-    <div class="q-card" id="qCard">
-      <span class="q-emoji" id="qEmoji">🎯</span>
-      <p class="q-text" id="qText"></p>
-      <div class="answers-grid" id="answersGrid"></div>
+  </section>
+
+  <!-- ══ QUIZ ══ -->
+  <section class="screen" id="quiz">
+    <div class="counter" id="counter">Question 1 of 15</div>
+    <div class="progress"><span id="bar"></span></div>
+    <h2 class="question" id="question"></h2>
+    <div class="answers" id="answers"></div>
+  </section>
+
+  <!-- ══ CREW ══ -->
+  <section class="screen" id="crew">
+    <div class="tabs" id="tabs"></div>
+
+    <div class="flag" id="flag">Your best fit</div>
+    <h1 id="crewName"></h1>
+    <div class="divider"></div>
+    <p class="pitch" id="pitch"></p>
+    <p id="job"></p>
+
+    <div class="specs">
+      <span><b>3 to 5</b> students</span>
+      <span><b>5</b> rallies a year</span>
+      <span id="status"></span>
     </div>
-  </div>
 
-  <!-- ══ RESULT SCREEN ══ -->
-  <div class="screen" id="screen-result">
-    <div class="result-badge" id="resultBadge"></div>
-    <p class="result-your-result" id="resultHeaderLabel">Your Best Fit</p>
-    <p class="result-fit-label" id="resultFitLabel">Maybe you belong on...</p>
-    <h2 class="result-team-name" id="resultTeamName"></h2>
-
-    <p class="result-your-result" id="exploreLabel" style="margin-bottom:10px;">Explore All Teams</p>
-    <div class="team-tabs" id="teamTabs"></div>
-
-    <div class="result-card" id="resultCard">
-      <div class="result-card-bar" id="resultCardBar"></div>
-      <p class="result-tagline" id="resultTagline"></p>
-      <p class="result-desc" id="resultDesc"></p>
-      <div class="result-traits" id="resultTraits"></div>
-      <div class="score-section" id="scoreSection">
-        <p class="score-label">How You Scored</p>
-        <div class="score-rows" id="scoreBars"></div>
-      </div>
+    <div class="block">
+      <h2 class="sec">What you do</h2>
+      <ul id="duties"></ul>
     </div>
-    <button class="btn btn-restart" id="restartBtn" onclick="restartQuiz()">Take It Again</button>
-  </div>
 
-</div>
+    <div class="block">
+      <h2 class="sec">What goes on your resume</h2>
+      <ul id="skills"></ul>
+    </div>
+
+    <div class="block" id="scoreBlock">
+      <h2 class="sec">How you answered</h2>
+      <div id="scores"></div>
+    </div>
+
+    <div class="links">
+      <a class="button" id="email" href="mailto:bweaver@greermiddlecollege.org">Email Mr. Weaver</a>
+      <button class="button secondary" id="again" onclick="restart()">Take it Again</button>
+    </div>
+
+    <div class="foot"><p style="color:var(--dim);font-size:0.9rem;margin:0">Greer Middle College &middot; Blazer Pit Crew</p></div>
+  </section>
+
+</main>
 
 <script>
-  // ─────────────────────────── SOUND ───────────────────────────
-
-  let audioCtx = null;
-
-  function getAudioCtx() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    return audioCtx;
+const CREWS = {
+  GM: {
+    name: 'Game Masters',
+    tab: 'Game Masters',
+    status: 'Returning crew',
+    pitch: 'You run the floor and the microphone.',
+    job: 'You open the rally, explain every game, and keep four hundred people loud. When a game ends two minutes early, those two minutes are yours to fill.',
+    duties: [
+      'Script the opening and the game instructions',
+      'Build a chant or call-and-response for student entry',
+      'Keep a backup crowd moment ready for a game that ends early',
+      'Run the games live and close with dismissal'
+    ],
+    skills: [
+      'Public speaking to audiences of 400 or more',
+      'Live event hosting and game facilitation',
+      'Script writing for spoken delivery',
+      'Improvisation under time pressure'
+    ]
+  },
+  AN: {
+    name: 'Anchors',
+    tab: 'Anchors',
+    status: 'New this year',
+    pitch: 'Not the loudest voice in the gym. The one people trust.',
+    job: 'Game Masters own the peaks. You own everything between them, including the gaps nobody planned for. New crew this year, so the first group sets the standard.',
+    duties: [
+      'Mark every transition and handoff you own on the rundown',
+      'Write the bridge lines between segments',
+      'Keep two minutes of material ready for a delay',
+      'Open and close each segment live'
+    ],
+    skills: [
+      'Live hosting and on-microphone presence',
+      'Audience engagement and inclusive communication',
+      'Cross-team coordination during live events',
+      'Real-time problem solving in front of a crowd'
+    ]
+  },
+  PR: {
+    name: 'Production',
+    tab: 'Production',
+    status: 'Returning crew',
+    pitch: 'If nobody notices you, you nailed it.',
+    job: 'Music, microphones, lights, and sound effects. The rally has a mood before anyone says a word, and you are the reason it has one.',
+    duties: [
+      'Assign operators for lights, music, and microphones',
+      'Build the cue sheet against the rally rundown',
+      'Queue entry music, game effects, and exit music',
+      'Test everything in the gym, then run the board live'
+    ],
+    skills: [
+      'Live audio engineering and sound reinforcement',
+      'Lighting operation for live events',
+      'Technical cue writing and show documentation',
+      'Equipment testing and troubleshooting'
+    ]
+  },
+  PO: {
+    name: 'Promo',
+    tab: 'Promo',
+    status: 'Returning crew',
+    pitch: 'Nothing happens unless you make it happen.',
+    job: 'You build the timeline and make sure every crew has what it needs on the day it needs it. Athletes staged, materials courtside, cleanup planned, story posted.',
+    duties: [
+      'Build the timeline backwards from rally day',
+      'Stage athletes and pre-select student volunteers',
+      'Prep game materials courtside before doors open',
+      'Run dismissal and capture content for social'
+    ],
+    skills: [
+      'Event logistics and production planning',
+      'Project timeline management with hard deadlines',
+      'Social media content and campaign management',
+      'Budget and materials coordination'
+    ]
   }
+};
 
-  function playClick() {
-    try {
-      const ctx = getAudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(520, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(340, ctx.currentTime + 0.08);
-      gain.gain.setValueAtTime(0.18, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.13);
-    } catch(e) {}
+const ORDER = ['GM', 'AN', 'PR', 'PO'];
+const MARKS = ['A', 'B', 'C', 'D'];
+
+const QUESTIONS = [
+  { text: "Someone unexpectedly hands you a microphone in front of 400 people. Your first instinct is...", answers: [
+    { text: "Say something, anything. You'll figure out the rest as you go.", crew: 'GM' },
+    { text: "Light up. This is actually your element.", crew: 'AN' },
+    { text: "Wish you had a soundboard and entrance music ready.", crew: 'PR' },
+    { text: "Wish someone had warned you so you could have prepared something.", crew: 'PO' } ] },
+  { text: "There's an awkward silence in a group setting. You...", answers: [
+    { text: "Break it with a joke or a question, loudly.", crew: 'GM' },
+    { text: "Jump in and get everyone talking again like it's nothing.", crew: 'AN' },
+    { text: "Say something slightly weird, laugh at yourself, then somehow overshare.", crew: 'PR' },
+    { text: "Already had a talking point ready just in case.", crew: 'PO' } ] },
+  { text: "You're at a party. Where are people most likely to find you?", answers: [
+    { text: "Center of the room, in the middle of a story.", crew: 'GM' },
+    { text: "Floating around, pulling people into the same conversation.", crew: 'AN' },
+    { text: "Near the speaker, quietly judging the playlist.", crew: 'PR' },
+    { text: "Working the room with a purpose, making connections.", crew: 'PO' } ] },
+  { text: "Pick the heist movie role that fits you best.", answers: [
+    { text: "The Distraction: charismatic, unpredictable, everyone's watching them.", crew: 'GM' },
+    { text: "The Face: charming, trustworthy, gets anyone to open the door.", crew: 'AN' },
+    { text: "The Hacker: nobody knows what they're doing until it works.", crew: 'PR' },
+    { text: "The Mastermind: built the plan, knows every detail, delegated the rest.", crew: 'PO' } ] },
+  { text: "Your group project is due tomorrow and nobody has started. You...", answers: [
+    { text: "Rally everyone with energy and enthusiasm, figure out assignments on the fly.", crew: 'GM' },
+    { text: "Get everyone in a room, hype them up, and make it feel like a team mission.", crew: 'AN' },
+    { text: "Already spent four hours on one optional section and have nothing else done.", crew: 'PR' },
+    { text: "Build a quick shared doc, assign tasks, and set a midnight deadline.", crew: 'PO' } ] },
+  { text: "You're watching a movie. What do you notice first?", answers: [
+    { text: "How the audience around you is reacting.", crew: 'GM' },
+    { text: "Whether the characters feel real and relatable.", crew: 'AN' },
+    { text: "The vibes.", crew: 'PR' },
+    { text: "Whether the story structure actually makes sense.", crew: 'PO' } ] },
+  { text: "Something important runs 10 minutes over schedule. You feel...", answers: [
+    { text: "Restless. Let's wrap it up or make it interesting.", crew: 'GM' },
+    { text: "Unbothered. You'll keep the energy up regardless.", crew: 'AN' },
+    { text: "You got distracted building something cool and didn't notice.", crew: 'PR' },
+    { text: "Annoyed. This is exactly why you wanted a detailed timeline.", crew: 'PO' } ] },
+  { text: "Pick the thing that would stress you out most if it went wrong at an important moment.", answers: [
+    { text: "Nobody laughing or responding.", crew: 'GM' },
+    { text: "The energy dying and nobody knowing how to bring it back.", crew: 'AN' },
+    { text: "A technical failure nobody can fix in time.", crew: 'PR' },
+    { text: "Something that was supposed to be handled not being handled.", crew: 'PO' } ] },
+  { text: "What's on your dresser or in your car trunk?", answers: [
+    { text: "Random costume pieces, props, and at least one thing you forgot to return to someone.", crew: 'GM' },
+    { text: "Stuff that belongs to other people that you've been meaning to return.", crew: 'AN' },
+    { text: "Something nobody recognizes and one thing that definitely shouldn't be there.", crew: 'PR' },
+    { text: "A tote bag with most of what you need and a list of what you forgot.", crew: 'PO' } ] },
+  { text: "Someone calls you \"extra.\" You take it as...", answers: [
+    { text: "A compliment, obviously.", crew: 'GM' },
+    { text: "Weird. You were just being yourself.", crew: 'AN' },
+    { text: "Fair, honestly.", crew: 'PR' },
+    { text: "You've been called worse, and things still got done.", crew: 'PO' } ] },
+  { text: "Your friend group is lost with no GPS. You...", answers: [
+    { text: "Make it an adventure and keep everyone's spirits high.", crew: 'GM' },
+    { text: "Take charge confidently and figure it out on the move.", crew: 'AN' },
+    { text: "Already downloaded the offline map before you left but forgot to mention it.", crew: 'PR' },
+    { text: "Try to recall the itinerary you wish you had printed.", crew: 'PO' } ] },
+  { text: "Pick your seat on a school bus.", answers: [
+    { text: "Very back. No further questions.", crew: 'GM' },
+    { text: "Wherever the most people are so you can talk to everyone.", crew: 'AN' },
+    { text: "Window seat, headphones in, staring outside.", crew: 'PR' },
+    { text: "Front seat, already thinking about the destination.", crew: 'PO' } ] },
+  { text: "You find $100 with no strings attached. First thought?", answers: [
+    { text: "Who wants to do something fun tonight?", crew: 'GM' },
+    { text: "How can I use this to do something with the people I care about.", crew: 'AN' },
+    { text: "Already know which app, plugin, or software subscription you're getting.", crew: 'PR' },
+    { text: "Already thinking about how to stretch it into something bigger.", crew: 'PO' } ] },
+  { text: "Your superpower would most likely be...", answers: [
+    { text: "Instant crowd control: anyone you speak to is immediately engaged.", crew: 'GM' },
+    { text: "Making anyone feel welcome and energized the second they walk in.", crew: 'AN' },
+    { text: "The ability to fix absolutely anything on the spot.", crew: 'PR' },
+    { text: "Foresight: you can see exactly how things will unfold before they happen.", crew: 'PO' } ] },
+  { text: "What's your worst nightmare?", answers: [
+    { text: "Landing a joke to complete silence.", crew: 'GM' },
+    { text: "Talking for five minutes and realizing the room checked out.", crew: 'AN' },
+    { text: "The aux cord getting unplugged during the best part of the song.", crew: 'PR' },
+    { text: "Showing up and realizing nobody did what they said they were going to do.", crew: 'PO' } ] }
+];
+
+let index = 0;
+let scores = { GM: 0, AN: 0, PR: 0, PO: 0 };
+let locked = false;
+let winner = '';
+let browse = false;
+
+function shuffle(a) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
   }
+  return b;
+}
 
-  function playSuccess() {
-    try {
-      const ctx = getAudioCtx();
-      [0, 0.08, 0.18].forEach((t, i) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = 'sine';
-        const notes = [520, 660, 780];
-        osc.frequency.setValueAtTime(notes[i], ctx.currentTime + t);
-        gain.gain.setValueAtTime(0.14, ctx.currentTime + t);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.18);
-        osc.start(ctx.currentTime + t);
-        osc.stop(ctx.currentTime + t + 0.2);
-      });
-    } catch(e) {}
-  }
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-  // ─────────────────────────── TEAM DATA ───────────────────────────
+function startQuiz() {
+  browse = false;
+  index = 0;
+  scores = { GM: 0, AN: 0, PR: 0, PO: 0 };
+  show('quiz');
+  loadQuestion();
+}
 
-  const TEAMS = {
-    GM: {
-      name: 'Game Masters',
-      emoji: '🎤',
-      color: '#F2640A',
-      bgColor: '#FFF0E6',
-      borderColor: '#FFB899',
-      barColor: '#F2640A',
-      tagline: '"The room already listens. We just give them a reason."',
-      desc: `Game Master might be your team. Think ring announcer energy, the kind of person who already has the room before they say a single word. Game Masters are the ones people naturally look at when something happens. They are quick-witted, entertaining, and genuinely unafraid to look a little ridiculous in front of 400 people if that is what it takes to get a laugh or a reaction.\n\nThis team scripts the structure of games and crowd moments, then improvises the personality live. They own the energy during the rally itself, not just before it. If a game falls flat or a moment dies, a Game Master does not freeze, they already have a Plan B in their back pocket and they pivot without anyone noticing. They are the ones who think in terms of crowd pops, call-and-response chants, and what the vibe feels like from the bleachers. Their biggest fear is silence. Their biggest win is a room that forgets it was just at school.`,
-      traits: ['Quick-Witted', 'Crowd First', 'Risk Taker', 'Unscripted Energy', 'Natural Influencer']
-    },
-    AN: {
-      name: 'Anchors',
-      emoji: '⚓',
-      color: '#1348A0',
-      bgColor: '#EFF6FF',
-      borderColor: '#BFDBFE',
-      barColor: '#2563EB',
-      tagline: '"Everyone feels the energy. You make sure nobody gets left behind."',
-      desc: `Anchors might be your team. This is not the role for the loudest person in the room. It is for the most trusted one. Anchors bring warm, magnetic, big brother and big sister energy. People feel comfortable around them almost immediately, and that comfort is exactly what makes them effective on a microphone in front of a crowd.\n\nAnchors are confident public speakers who captivate without performing. They are not trying to make people laugh the way Game Masters do. They are trying to make people feel something, connected, included, and locked in. They serve as the throughline of the whole rally, bridging the big chaotic moments with warmth and forward momentum. When there is an awkward gap or a delay, the Anchor fills it naturally, like a conversation with someone you already trust. They collaborate with all teams during planning and then execute without ego on game day. Their biggest fear is losing the room. Their biggest win is a rally that felt like one seamless experience from start to finish.`,
-      traits: ['Warm and Magnetic', 'Confident Speaker', 'Captivating', 'Flow Master', 'People First']
-    },
-    PR: {
-      name: 'Production',
-      emoji: '🎛️',
-      color: '#7C3AED',
-      bgColor: '#F5F3FF',
-      borderColor: '#DDD6FE',
-      barColor: '#7C3AED',
-      tagline: '"Nobody knows what we do. That\'s exactly how we like it."',
-      desc: `Production might be your team. This is the behind-the-scenes role for students who are technically curious, a little quirky, and motivated by the craft of making something feel right. Production owns the atmosphere, the music, the sound effects, the visuals, the transitions, and every cue that shapes how the rally feels before anyone even starts talking.\n\nProduction students tend to be literal and a little sarcastic. They hyperfocus on the details that excite them, sometimes at the expense of the ones that do not. They will spend 90 minutes perfecting an optional transition effect and have exactly zero regrets about it. They work closely with the upfront teams during planning to build cue sheets, but when it comes to music and media choices, they have final say. That is their domain. If the vibe of the rally hits just right, nobody in the crowd will know why. But Production will. Their biggest fear is a technical failure they cannot fix. Their biggest win is a rally where the transitions felt invisible.`,
-      traits: ['Technically Curious', 'Creatively Chaotic', 'Dry Humor', 'Detail Obsessed', 'Atmosphere Architect']
-    },
-    PO: {
-      name: 'Promo',
-      emoji: '📋',
-      color: '#065F46',
-      bgColor: '#ECFDF5',
-      borderColor: '#A7F3D0',
-      barColor: '#059669',
-      tagline: '"Without us, it\'s just a really good idea."',
-      desc: `Promo might be your team. Everything would be chaos without the Promo team, and they know it. They are the glue that connects Production and Game Masters, the ones who turn good ideas into actual plans. Promo works backwards from rally day, building the master timeline and making sure every team has what they need to do their job well.\n\nThis team is both creative and execution-focused, which is a genuinely rare combination. They set the rally theme and work with Game Masters to bring it to life. They own the budget and have decision-making power over how it gets spent. They run social media and own the full story, before the rally to build hype, during for behind-the-scenes content, and after to capture the moment. They are decisive, collaborative, and deeply motivated by a checklist. Where Game Masters think in wants, Promo thinks in needs. Where Production chases cool, Promo chases done. Their biggest fear is showing up and realizing nobody followed through. Their biggest win is a rally that happened exactly the way it was planned, plus a little better.`,
-      traits: ['Execution Focused', 'Big Picture Thinker', 'Decisive', 'Social Storyteller', 'The Glue']
-    }
-  };
+function loadQuestion() {
+  locked = false;
+  const q = QUESTIONS[index];
+  document.getElementById('counter').textContent = 'Question ' + (index + 1) + ' of ' + QUESTIONS.length;
+  document.getElementById('bar').style.width = (index / QUESTIONS.length) * 100 + '%';
+  document.getElementById('question').textContent = q.text;
 
-  const TEAM_ORDER = ['GM', 'AN', 'PR', 'PO'];
+  const wrap = document.getElementById('answers');
+  wrap.className = 'answers';
+  wrap.innerHTML = '';
 
-  const EMOJIS = ['🎯','🎪','🎭','🎬','🎮','🎲','🧩','🎸','🎺','⚡','🔥','💥','🎊','🌀','🎨'];
-
-  const QUESTIONS = [
-    {
-      text: "Someone unexpectedly hands you a microphone in front of 400 people. Your first instinct is...",
-      answers: [
-        { text: "Say something, anything. You'll figure out the rest as you go.", team: 'GM' },
-        { text: "Light up. This is actually your element.", team: 'AN' },
-        { text: "Wish you had a soundboard and entrance music ready.", team: 'PR' },
-        { text: "Wish someone had warned you so you could have prepared something.", team: 'PO' }
-      ]
-    },
-    {
-      text: "There's an awkward silence in a group setting. You...",
-      answers: [
-        { text: "Break it with a joke or a question, loudly.", team: 'GM' },
-        { text: "Jump in and get everyone talking again like it's nothing.", team: 'AN' },
-        { text: "Say something slightly weird, laugh at yourself, then somehow overshare.", team: 'PR' },
-        { text: "Already had a talking point ready just in case.", team: 'PO' }
-      ]
-    },
-    {
-      text: "You're at a party. Where are people most likely to find you?",
-      answers: [
-        { text: "Center of the room, in the middle of a story.", team: 'GM' },
-        { text: "Floating around, pulling people into the same conversation.", team: 'AN' },
-        { text: "Near the speaker, quietly judging the playlist.", team: 'PR' },
-        { text: "Working the room with a purpose, making connections.", team: 'PO' }
-      ]
-    },
-    {
-      text: "Pick the heist movie role that fits you best.",
-      answers: [
-        { text: "The Distraction: charismatic, unpredictable, everyone's watching them.", team: 'GM' },
-        { text: "The Face: charming, trustworthy, gets anyone to open the door.", team: 'AN' },
-        { text: "The Hacker: nobody knows what they're doing until it works.", team: 'PR' },
-        { text: "The Mastermind: built the plan, knows every detail, delegated the rest.", team: 'PO' }
-      ]
-    },
-    {
-      text: "Your group project is due tomorrow and nobody has started. You...",
-      answers: [
-        { text: "Rally everyone with energy and enthusiasm, figure out assignments on the fly.", team: 'GM' },
-        { text: "Get everyone in a room, hype them up, and make it feel like a team mission.", team: 'AN' },
-        { text: "Already spent four hours on one optional section and have nothing else done.", team: 'PR' },
-        { text: "Build a quick shared doc, assign tasks, and set a midnight deadline.", team: 'PO' }
-      ]
-    },
-    {
-      text: "You're watching a movie. What do you notice first?",
-      answers: [
-        { text: "How the audience around you is reacting.", team: 'GM' },
-        { text: "Whether the characters feel real and relatable.", team: 'AN' },
-        { text: "The vibes.", team: 'PR' },
-        { text: "Whether the story structure actually makes sense.", team: 'PO' }
-      ]
-    },
-    {
-      text: "Something important runs 10 minutes over schedule. You feel...",
-      answers: [
-        { text: "Restless. Let's wrap it up or make it interesting.", team: 'GM' },
-        { text: "Unbothered. You'll keep the energy up regardless.", team: 'AN' },
-        { text: "You got distracted building something cool and didn't notice.", team: 'PR' },
-        { text: "Annoyed. This is exactly why you wanted a detailed timeline.", team: 'PO' }
-      ]
-    },
-    {
-      text: "Pick the thing that would stress you out most if it went wrong at an important moment.",
-      answers: [
-        { text: "Nobody laughing or responding.", team: 'GM' },
-        { text: "The energy dying and nobody knowing how to bring it back.", team: 'AN' },
-        { text: "A technical failure nobody can fix in time.", team: 'PR' },
-        { text: "Something that was supposed to be handled not being handled.", team: 'PO' }
-      ]
-    },
-    {
-      text: "What's on your dresser or in your car trunk?",
-      answers: [
-        { text: "Random costume pieces, props, and at least one thing you forgot to return to someone.", team: 'GM' },
-        { text: "Stuff that belongs to other people that you've been meaning to return.", team: 'AN' },
-        { text: "Something nobody recognizes and one thing that definitely shouldn't be there.", team: 'PR' },
-        { text: "A tote bag with most of what you need and a list of what you forgot.", team: 'PO' }
-      ]
-    },
-    {
-      text: "Someone calls you \"extra.\" You take it as...",
-      answers: [
-        { text: "A compliment, obviously.", team: 'GM' },
-        { text: "Weird. You were just being yourself.", team: 'AN' },
-        { text: "Fair, honestly.", team: 'PR' },
-        { text: "You've been called worse, and things still got done.", team: 'PO' }
-      ]
-    },
-    {
-      text: "Your friend group is lost with no GPS. You...",
-      answers: [
-        { text: "Make it an adventure and keep everyone's spirits high.", team: 'GM' },
-        { text: "Take charge confidently and figure it out on the move.", team: 'AN' },
-        { text: "Already downloaded the offline map before you left but forgot to mention it.", team: 'PR' },
-        { text: "Try to recall the itinerary you wish you had printed.", team: 'PO' }
-      ]
-    },
-    {
-      text: "Pick your seat on a school bus.",
-      answers: [
-        { text: "Very back. No further questions.", team: 'GM' },
-        { text: "Wherever the most people are so you can talk to everyone.", team: 'AN' },
-        { text: "Window seat, headphones in, staring outside.", team: 'PR' },
-        { text: "Front seat, already thinking about the destination.", team: 'PO' }
-      ]
-    },
-    {
-      text: "You find $100 with no strings attached. First thought?",
-      answers: [
-        { text: "Who wants to do something fun tonight?", team: 'GM' },
-        { text: "How can I use this to do something with the people I care about.", team: 'AN' },
-        { text: "Already know which app, plugin, or software subscription you're getting.", team: 'PR' },
-        { text: "Already thinking about how to stretch it into something bigger.", team: 'PO' }
-      ]
-    },
-    {
-      text: "Your superpower would most likely be...",
-      answers: [
-        { text: "Instant crowd control: anyone you speak to is immediately engaged.", team: 'GM' },
-        { text: "Making anyone feel welcome and energized the second they walk in.", team: 'AN' },
-        { text: "The ability to fix absolutely anything on the spot.", team: 'PR' },
-        { text: "Foresight: you can see exactly how things will unfold before they happen.", team: 'PO' }
-      ]
-    },
-    {
-      text: "What's your worst nightmare?",
-      answers: [
-        { text: "Landing a joke to complete silence.", team: 'GM' },
-        { text: "Talking for five minutes and realizing the room checked out.", team: 'AN' },
-        { text: "The aux cord getting unplugged during the best part of the song.", team: 'PR' },
-        { text: "Showing up and realizing nobody did what they said they were going to do.", team: 'PO' }
-      ]
-    }
-  ];
-
-  // ─────────────────────────── STATE ───────────────────────────
-
-  let currentQ = 0;
-  let scores = { GM: 0, AN: 0, PR: 0, PO: 0 };
-  let answered = false;
-  let winnerKey = '';
-  let activeTab = '';
-  let browseMode = false;
-
-  // ─────────────────────────── HELPERS ───────────────────────────
-
-  function shuffle(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
-  function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function addRipple(el, e) {
-    const rect = el.getBoundingClientRect();
-    const x = (e.clientX || e.touches?.[0]?.clientX || rect.left + rect.width / 2) - rect.left;
-    const y = (e.clientY || e.touches?.[0]?.clientY || rect.top + rect.height / 2) - rect.top;
-    const size = Math.max(rect.width, rect.height) * 1.5;
-    const ripple = document.createElement('span');
-    ripple.className = 'ripple';
-    ripple.style.cssText = `width:${size}px;height:${size}px;left:${x - size/2}px;top:${y - size/2}px`;
-    el.appendChild(ripple);
-    setTimeout(() => ripple.remove(), 600);
-  }
-
-  // ─────────────────────────── QUIZ ───────────────────────────
-
-  function startQuiz() {
-    playClick();
-    browseMode = false;
-    currentQ = 0;
-    scores = { GM: 0, AN: 0, PR: 0, PO: 0 };
-    answered = false;
-    showScreen('screen-question');
-    loadQuestion(true);
-  }
-
-  function loadQuestion(isFirst = false) {
-    answered = false;
-    const q = QUESTIONS[currentQ];
-    const shuffled = shuffle(q.answers);
-
-    document.getElementById('qStep').textContent = `Question ${currentQ + 1}`;
-    document.getElementById('qCount').textContent = `${currentQ + 1} of ${QUESTIONS.length}`;
-    document.getElementById('qEmoji').textContent = EMOJIS[currentQ];
-    document.getElementById('qText').textContent = q.text;
-
-    const pct = (currentQ / QUESTIONS.length) * 100;
-    document.getElementById('progressFill').style.width = pct + '%';
-
-    const grid = document.getElementById('answersGrid');
-    grid.innerHTML = '';
-
-    shuffled.forEach(ans => {
-      const tile = document.createElement('button');
-      tile.className = 'answer-tile';
-      tile.textContent = ans.text;
-      tile.setAttribute('data-team', ans.team);
-      tile.style.opacity = '0';
-      tile.style.transform = 'scale(0.92)';
-      tile.addEventListener('click', e => { addRipple(tile, e); selectAnswer(tile, ans.team); });
-      grid.appendChild(tile);
-    });
-
-    const card = document.getElementById('qCard');
-    gsap.fromTo(card,
-      { opacity: 0, x: isFirst ? 0 : 50, y: isFirst ? 16 : 0 },
-      { opacity: 1, x: 0, y: 0, duration: 0.35, ease: 'power2.out' }
-    );
-
-    const tiles = grid.querySelectorAll('.answer-tile');
-    gsap.to(tiles, {
-      opacity: 1, scale: 1, duration: 0.28,
-      stagger: 0.07, delay: 0.15, ease: 'back.out(1.4)'
-    });
-  }
-
-  function selectAnswer(tile, team) {
-    if (answered) return;
-    answered = true;
-    playClick();
-
-    scores[team]++;
-    tile.classList.add('selected');
-    document.querySelectorAll('.answer-tile').forEach(t => { if (t !== tile) t.classList.add('faded'); });
-    gsap.fromTo(tile, { scale: 1.02 }, { scale: 1, duration: 0.25, ease: 'elastic.out(1, 0.5)' });
-
-    setTimeout(() => {
-      if (currentQ < QUESTIONS.length - 1) {
-        const card = document.getElementById('qCard');
-        gsap.to(card, {
-          opacity: 0, x: -50, duration: 0.28, ease: 'power2.in',
-          onComplete: () => { currentQ++; loadQuestion(); }
-        });
-      } else {
-        playSuccess();
-        showResult();
-      }
-    }, 550);
-  }
-
-  // ─────────────────────────── BROWSE (SKIP QUIZ) ───────────────────────────
-
-  function browseTeams() {
-    playClick();
-    browseMode = true;
-    scores = { GM: 0, AN: 0, PR: 0, PO: 0 };
-    winnerKey = '';
-    renderResultScreen();
-  }
-
-  // ─────────────────────────── RESULT ───────────────────────────
-
-  function showResult() {
-    browseMode = false;
-    winnerKey = Object.entries(scores).reduce((a, b) => b[1] > a[1] ? b : a)[0];
-    renderResultScreen();
-  }
-
-  function renderResultScreen() {
-    document.getElementById('progressFill').style.width = browseMode ? '0%' : '100%';
-
-    // Score bars are only meaningful after a real quiz run
-    const scoreSection = document.getElementById('scoreSection');
-    scoreSection.style.display = browseMode ? 'none' : 'block';
-
-    if (!browseMode) {
-      const scoreBarsEl = document.getElementById('scoreBars');
-      scoreBarsEl.innerHTML = '';
-      const total = QUESTIONS.length;
-      TEAM_ORDER.forEach(t => {
-        const td = TEAMS[t];
-        const row = document.createElement('div');
-        row.className = 'score-row';
-        row.innerHTML = `
-          <span class="score-row-name">${td.emoji} ${td.name}</span>
-          <div class="score-row-track">
-            <div class="score-row-fill" style="background:${td.barColor}" data-pct="${(scores[t]/total)*100}"></div>
-          </div>
-          <span class="score-row-num">${scores[t]}</span>
-        `;
-        scoreBarsEl.appendChild(row);
-      });
-    }
-
-    // Build team tabs
-    const tabsEl = document.getElementById('teamTabs');
-    tabsEl.innerHTML = '';
-    TEAM_ORDER.forEach(t => {
-      const td = TEAMS[t];
-      const isWinner = !browseMode && t === winnerKey;
-      const tab = document.createElement('button');
-      tab.className = 'team-tab';
-      tab.setAttribute('data-team', t);
-      tab.innerHTML = `
-        ${isWinner ? '<span class="winner-crown">★ Your Fit</span>' : '<span class="winner-crown" style="opacity:0">.</span>'}
-        <span class="tab-emoji">${td.emoji}</span>
-        <span class="tab-name">${td.name}</span>
-      `;
-      tab.addEventListener('click', () => { playClick(); switchTeamDisplay(t); });
-      tabsEl.appendChild(tab);
-    });
-
-    // Headings and buttons change wording depending on how you got here
-    document.getElementById('resultHeaderLabel').textContent = browseMode ? 'The Four Teams' : 'Your Best Fit';
-    document.getElementById('exploreLabel').textContent = browseMode ? 'Tap A Team To Read More' : 'Explore All Teams';
-    document.getElementById('restartBtn').textContent = browseMode ? 'Take The Quiz' : 'Take It Again';
-
-    showScreen('screen-result');
-    switchTeamDisplay(browseMode ? TEAM_ORDER[0] : winnerKey, true);
-
-    if (!browseMode) {
-      setTimeout(() => {
-        document.querySelectorAll('.score-row-fill').forEach(fill => {
-          fill.style.width = fill.getAttribute('data-pct') + '%';
-        });
-      }, 700);
-      launchConfetti(TEAMS[winnerKey].color);
-    }
-  }
-
-  function switchTeamDisplay(teamKey, isInitial = false) {
-    activeTab = teamKey;
-    const team = TEAMS[teamKey];
-
-    // Update badge
-    const badge = document.getElementById('resultBadge');
-    badge.textContent = team.emoji;
-    badge.style.borderColor = team.color;
-    badge.style.background = team.bgColor;
-    badge.style.boxShadow = `0 8px 32px ${team.color}33`;
-    badge.style.color = team.color;
-
-    // Update labels
-    document.getElementById('resultFitLabel').textContent =
-      (!browseMode && teamKey === winnerKey) ? 'Maybe you belong on...' : 'Learn about...';
-    document.getElementById('resultFitLabel').style.color = team.color;
-    document.getElementById('resultTeamName').textContent = team.name;
-    document.getElementById('resultTeamName').style.color = team.color;
-
-    // Update card
-    document.getElementById('resultCardBar').style.background =
-      `linear-gradient(90deg, ${team.color}, ${team.barColor}88)`;
-    document.getElementById('resultCard').style.borderColor = team.borderColor;
-    document.getElementById('resultTagline').textContent = team.tagline;
-    document.getElementById('resultTagline').style.color = team.color;
-
-    // Description with paragraph breaks
-    const descEl = document.getElementById('resultDesc');
-    descEl.innerHTML = '';
-    const paras = team.desc.split('\n\n');
-    paras.forEach((para, i) => {
-      const p = document.createElement('p');
-      p.textContent = para;
-      p.style.marginBottom = i < paras.length - 1 ? '14px' : '0';
-      descEl.appendChild(p);
-    });
-
-    // Traits
-    const traitsEl = document.getElementById('resultTraits');
-    traitsEl.innerHTML = '';
-    team.traits.forEach(t => {
-      const tag = document.createElement('span');
-      tag.className = 'trait-tag';
-      tag.textContent = t;
-      tag.style.color = team.color;
-      tag.style.borderColor = team.borderColor;
-      tag.style.background = team.bgColor;
-      traitsEl.appendChild(tag);
-    });
-
-    // Update tabs
-    document.querySelectorAll('.team-tab').forEach(tab => {
-      const t = tab.getAttribute('data-team');
-      const td = TEAMS[t];
-      tab.classList.remove('active-tab');
-      tab.style.background = '';
-      tab.style.borderColor = '';
-      tab.style.color = '';
-      if (t === teamKey) {
-        tab.classList.add('active-tab');
-        tab.style.background = td.color;
-        tab.style.color = '#fff';
-      }
-    });
-
-    // Animate card content on switch
-    if (!isInitial) {
-      const card = document.getElementById('resultCard');
-      gsap.fromTo(card, { opacity: 0.6, y: 6 }, { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' });
-    } else {
-      const els = ['resultBadge', 'resultTeamName', 'resultCard'].map(id => document.getElementById(id));
-      gsap.fromTo(els,
-        { opacity: 0, y: 28, scale: 0.96 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: 'back.out(1.4)', delay: 0.1 }
-      );
-    }
-  }
-
-  function restartQuiz() {
-    const canvas = document.getElementById('confettiCanvas');
-    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-    document.getElementById('progressFill').style.width = '0%';
-
-    // Browsers who skipped the quiz go straight into it, quiz takers go home
-    if (browseMode) {
-      startQuiz();
-      return;
-    }
-    playClick();
-    showScreen('screen-intro');
-  }
-
-  // ─────────────────────────── CONFETTI ───────────────────────────
-
-  let confettiFrame;
-
-  function launchConfetti(teamColor) {
-    const canvas = document.getElementById('confettiCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const colors = [teamColor, '#F2640A', '#F59E0B', '#1348A0', '#60A5FA', '#ffffff'];
-    const particles = Array.from({ length: 100 }, () => ({
-      x: Math.random() * canvas.width,
-      y: -20,
-      w: 5 + Math.random() * 7,
-      h: 3 + Math.random() * 4,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      speed: 2.5 + Math.random() * 3.5,
-      angle: Math.random() * 360,
-      spin: (Math.random() - 0.5) * 5
-    }));
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      let alive = false;
-      particles.forEach(p => {
-        p.y += p.speed;
-        p.x += Math.sin(p.angle * 0.04) * 1.5;
-        p.angle += p.spin;
-        if (p.y < canvas.height + 20) alive = true;
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.angle * Math.PI / 180);
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = Math.max(0, 1 - p.y / canvas.height * 1.1);
-        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-        ctx.restore();
-      });
-      if (alive) confettiFrame = requestAnimationFrame(draw);
-      else ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    if (confettiFrame) cancelAnimationFrame(confettiFrame);
-    draw();
-  }
-
-  // ─────────────────────────── INIT ───────────────────────────
-
-  window.addEventListener('load', () => {
-    const els = document.querySelectorAll('#screen-intro > *');
-    gsap.fromTo(els,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.55, stagger: 0.1, ease: 'power2.out' }
-    );
+  shuffle(q.answers).forEach((ans, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer';
+    const mark = document.createElement('b');
+    mark.textContent = MARKS[i];
+    const label = document.createElement('span');
+    label.textContent = ans.text;
+    btn.append(mark, label);
+    btn.addEventListener('click', () => pick(btn, ans.crew));
+    wrap.appendChild(btn);
   });
+}
+
+function pick(btn, crew) {
+  if (locked) return;
+  locked = true;
+  scores[crew]++;
+
+  const wrap = document.getElementById('answers');
+  wrap.classList.add('locked');
+  btn.classList.add('picked');
+  wrap.querySelectorAll('.answer').forEach(a => { if (a !== btn) a.classList.add('dim'); });
+
+  setTimeout(() => {
+    if (index < QUESTIONS.length - 1) {
+      index++;
+      loadQuestion();
+    } else {
+      winner = Object.entries(scores).reduce((a, b) => b[1] > a[1] ? b : a)[0];
+      renderCrewPage();
+    }
+  }, 380);
+}
+
+function browseCrews() {
+  browse = true;
+  scores = { GM: 0, AN: 0, PR: 0, PO: 0 };
+  winner = '';
+  renderCrewPage();
+}
+
+function renderCrewPage() {
+  document.getElementById('bar').style.width = browse ? '0%' : '100%';
+  document.getElementById('scoreBlock').style.display = browse ? 'none' : 'block';
+  document.getElementById('again').textContent = browse ? 'Take the Quiz' : 'Take it Again';
+
+  if (!browse) {
+    const box = document.getElementById('scores');
+    box.innerHTML = '';
+    ORDER.forEach(k => {
+      const row = document.createElement('div');
+      row.className = 'score';
+      row.innerHTML = '<span>' + CREWS[k].name + '</span>' +
+        '<span class="track"><i data-pct="' + (scores[k] / QUESTIONS.length) * 100 + '"></i></span>' +
+        '<b>' + scores[k] + '</b>';
+      box.appendChild(row);
+    });
+  }
+
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = '';
+  ORDER.forEach(k => {
+    const tab = document.createElement('button');
+    tab.className = 'tab';
+    tab.dataset.crew = k;
+    tab.textContent = CREWS[k].tab;
+    tab.addEventListener('click', () => openCrew(k));
+    tabs.appendChild(tab);
+  });
+
+  show('crew');
+  openCrew(browse ? ORDER[0] : winner);
+
+  if (!browse) {
+    setTimeout(() => {
+      document.querySelectorAll('#scores i').forEach(i => { i.style.width = i.dataset.pct + '%'; });
+    }, 200);
+  }
+}
+
+function openCrew(key) {
+  const c = CREWS[key];
+
+  document.getElementById('flag').textContent =
+    (!browse && key === winner) ? 'Your best fit' : 'The crew';
+  document.getElementById('crewName').textContent = c.name;
+  document.getElementById('pitch').textContent = c.pitch;
+  document.getElementById('job').textContent = c.job;
+  document.getElementById('status').textContent = c.status;
+
+  const duties = document.getElementById('duties');
+  duties.innerHTML = '';
+  c.duties.forEach(d => {
+    const li = document.createElement('li');
+    li.textContent = d;
+    duties.appendChild(li);
+  });
+
+  const skills = document.getElementById('skills');
+  skills.innerHTML = '';
+  c.skills.forEach(s => {
+    const li = document.createElement('li');
+    li.textContent = s;
+    skills.appendChild(li);
+  });
+
+  document.getElementById('email').href =
+    'mailto:bweaver@greermiddlecollege.org?subject=' + encodeURIComponent('Pit Crew interest: ' + c.name);
+
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('on', t.dataset.crew === key);
+  });
+}
+
+function restart() {
+  if (browse) { startQuiz(); return; }
+  document.getElementById('bar').style.width = '0%';
+  show('start');
+}
 </script>
 </body>
 </html>

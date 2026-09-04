@@ -143,6 +143,24 @@
       transform: translateY(-2px);
     }
 
+    .btn-ghost {
+      background: var(--card);
+      color: var(--text2);
+      border: 1.5px solid var(--border);
+      font-family: var(--font-body);
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: 0.2px;
+      padding: 13px 30px;
+      margin-top: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-ghost:hover {
+      border-color: var(--blue-light);
+      color: var(--blue);
+      transform: translateY(-2px);
+    }
+
     .btn-restart {
       background: var(--card);
       color: var(--text2);
@@ -510,6 +528,7 @@
     <h1 class="intro-title">Which Team<br>Are <span class="flame">You?</span></h1>
     <p class="intro-sub">15 questions. No wrong answers. Discover which team might be the best fit for you.</p>
     <button class="btn btn-primary" onclick="startQuiz()">Let's Find Out</button>
+    <button class="btn btn-ghost" onclick="browseTeams()">Skip the quiz, show me the teams</button>
   </div>
 
   <!-- ══ QUESTION SCREEN ══ -->
@@ -528,11 +547,11 @@
   <!-- ══ RESULT SCREEN ══ -->
   <div class="screen" id="screen-result">
     <div class="result-badge" id="resultBadge"></div>
-    <p class="result-your-result">Your Best Fit</p>
+    <p class="result-your-result" id="resultHeaderLabel">Your Best Fit</p>
     <p class="result-fit-label" id="resultFitLabel">Maybe you belong on...</p>
     <h2 class="result-team-name" id="resultTeamName"></h2>
 
-    <p style="font-family:var(--font-display);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Explore All Teams</p>
+    <p class="result-your-result" id="exploreLabel" style="margin-bottom:10px;">Explore All Teams</p>
     <div class="team-tabs" id="teamTabs"></div>
 
     <div class="result-card" id="resultCard">
@@ -540,12 +559,12 @@
       <p class="result-tagline" id="resultTagline"></p>
       <p class="result-desc" id="resultDesc"></p>
       <div class="result-traits" id="resultTraits"></div>
-      <div class="score-section">
+      <div class="score-section" id="scoreSection">
         <p class="score-label">How You Scored</p>
         <div class="score-rows" id="scoreBars"></div>
       </div>
     </div>
-    <button class="btn btn-restart" onclick="restartQuiz()">Take It Again</button>
+    <button class="btn btn-restart" id="restartBtn" onclick="restartQuiz()">Take It Again</button>
   </div>
 
 </div>
@@ -794,6 +813,7 @@
   let answered = false;
   let winnerKey = '';
   let activeTab = '';
+  let browseMode = false;
 
   // ─────────────────────────── HELPERS ───────────────────────────
 
@@ -828,6 +848,7 @@
 
   function startQuiz() {
     playClick();
+    browseMode = false;
     currentQ = 0;
     scores = { GM: 0, AN: 0, PR: 0, PO: 0 };
     answered = false;
@@ -899,37 +920,56 @@
     }, 550);
   }
 
+  // ─────────────────────────── BROWSE (SKIP QUIZ) ───────────────────────────
+
+  function browseTeams() {
+    playClick();
+    browseMode = true;
+    scores = { GM: 0, AN: 0, PR: 0, PO: 0 };
+    winnerKey = '';
+    renderResultScreen();
+  }
+
   // ─────────────────────────── RESULT ───────────────────────────
 
   function showResult() {
-    document.getElementById('progressFill').style.width = '100%';
-
+    browseMode = false;
     winnerKey = Object.entries(scores).reduce((a, b) => b[1] > a[1] ? b : a)[0];
+    renderResultScreen();
+  }
 
-    // Build score bars
-    const scoreBarsEl = document.getElementById('scoreBars');
-    scoreBarsEl.innerHTML = '';
-    const total = QUESTIONS.length;
-    TEAM_ORDER.forEach(t => {
-      const td = TEAMS[t];
-      const row = document.createElement('div');
-      row.className = 'score-row';
-      row.innerHTML = `
-        <span class="score-row-name">${td.emoji} ${td.name}</span>
-        <div class="score-row-track">
-          <div class="score-row-fill" style="background:${td.barColor}" data-pct="${(scores[t]/total)*100}"></div>
-        </div>
-        <span class="score-row-num">${scores[t]}</span>
-      `;
-      scoreBarsEl.appendChild(row);
-    });
+  function renderResultScreen() {
+    document.getElementById('progressFill').style.width = browseMode ? '0%' : '100%';
+
+    // Score bars are only meaningful after a real quiz run
+    const scoreSection = document.getElementById('scoreSection');
+    scoreSection.style.display = browseMode ? 'none' : 'block';
+
+    if (!browseMode) {
+      const scoreBarsEl = document.getElementById('scoreBars');
+      scoreBarsEl.innerHTML = '';
+      const total = QUESTIONS.length;
+      TEAM_ORDER.forEach(t => {
+        const td = TEAMS[t];
+        const row = document.createElement('div');
+        row.className = 'score-row';
+        row.innerHTML = `
+          <span class="score-row-name">${td.emoji} ${td.name}</span>
+          <div class="score-row-track">
+            <div class="score-row-fill" style="background:${td.barColor}" data-pct="${(scores[t]/total)*100}"></div>
+          </div>
+          <span class="score-row-num">${scores[t]}</span>
+        `;
+        scoreBarsEl.appendChild(row);
+      });
+    }
 
     // Build team tabs
     const tabsEl = document.getElementById('teamTabs');
     tabsEl.innerHTML = '';
     TEAM_ORDER.forEach(t => {
       const td = TEAMS[t];
-      const isWinner = t === winnerKey;
+      const isWinner = !browseMode && t === winnerKey;
       const tab = document.createElement('button');
       tab.className = 'team-tab';
       tab.setAttribute('data-team', t);
@@ -942,16 +982,22 @@
       tabsEl.appendChild(tab);
     });
 
+    // Headings and buttons change wording depending on how you got here
+    document.getElementById('resultHeaderLabel').textContent = browseMode ? 'The Four Teams' : 'Your Best Fit';
+    document.getElementById('exploreLabel').textContent = browseMode ? 'Tap A Team To Read More' : 'Explore All Teams';
+    document.getElementById('restartBtn').textContent = browseMode ? 'Take The Quiz' : 'Take It Again';
+
     showScreen('screen-result');
-    switchTeamDisplay(winnerKey, true);
+    switchTeamDisplay(browseMode ? TEAM_ORDER[0] : winnerKey, true);
 
-    setTimeout(() => {
-      document.querySelectorAll('.score-row-fill').forEach(fill => {
-        fill.style.width = fill.getAttribute('data-pct') + '%';
-      });
-    }, 700);
-
-    launchConfetti(TEAMS[winnerKey].color);
+    if (!browseMode) {
+      setTimeout(() => {
+        document.querySelectorAll('.score-row-fill').forEach(fill => {
+          fill.style.width = fill.getAttribute('data-pct') + '%';
+        });
+      }, 700);
+      launchConfetti(TEAMS[winnerKey].color);
+    }
   }
 
   function switchTeamDisplay(teamKey, isInitial = false) {
@@ -968,7 +1014,7 @@
 
     // Update labels
     document.getElementById('resultFitLabel').textContent =
-      teamKey === winnerKey ? 'Maybe you belong on...' : 'Learn about...';
+      (!browseMode && teamKey === winnerKey) ? 'Maybe you belong on...' : 'Learn about...';
     document.getElementById('resultFitLabel').style.color = team.color;
     document.getElementById('resultTeamName').textContent = team.name;
     document.getElementById('resultTeamName').style.color = team.color;
@@ -983,10 +1029,11 @@
     // Description with paragraph breaks
     const descEl = document.getElementById('resultDesc');
     descEl.innerHTML = '';
-    team.desc.split('\n\n').forEach((para, i) => {
+    const paras = team.desc.split('\n\n');
+    paras.forEach((para, i) => {
       const p = document.createElement('p');
       p.textContent = para;
-      p.style.marginBottom = i < team.desc.split('\n\n').length - 1 ? '14px' : '0';
+      p.style.marginBottom = i < paras.length - 1 ? '14px' : '0';
       descEl.appendChild(p);
     });
 
@@ -1032,10 +1079,16 @@
   }
 
   function restartQuiz() {
-    playClick();
     const canvas = document.getElementById('confettiCanvas');
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
     document.getElementById('progressFill').style.width = '0%';
+
+    // Browsers who skipped the quiz go straight into it, quiz takers go home
+    if (browseMode) {
+      startQuiz();
+      return;
+    }
+    playClick();
     showScreen('screen-intro');
   }
 

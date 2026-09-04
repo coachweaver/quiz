@@ -7,11 +7,17 @@
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <style>
   :root {
+    --paper: #F4F3EF;
     --navy: #00205b;
     --blue: #6495ed;
+    --text: #2E3949;
+    --dim: #6B7686;
+    --line: #D9D7D0;
     --white: #ffffff;
-    --line: rgba(255,255,255,0.2);
-    --dim: rgba(255,255,255,0.65);
+
+    /* swapped per crew */
+    --accent: #00205b;
+    --accent-soft: rgba(0,32,91,0.08);
   }
 
   * { box-sizing: border-box; }
@@ -19,8 +25,8 @@
   body {
     margin: 0;
     min-height: 100vh;
-    background: var(--navy);
-    color: var(--white);
+    background: var(--paper);
+    color: var(--text);
     font-family: Arial, Helvetica, sans-serif;
     display: flex;
     align-items: center;
@@ -32,31 +38,27 @@
 
   h1 {
     margin: 0;
+    color: var(--navy);
     font-size: clamp(3rem, 10vw, 5.5rem);
     line-height: 0.9;
     letter-spacing: -0.05em;
     text-transform: uppercase;
   }
 
-  .divider {
-    width: 60px;
-    height: 5px;
-    margin: 28px 0;
-    background: var(--blue);
-  }
+  .divider { width: 60px; height: 5px; margin: 28px 0; background: var(--accent); }
+  .center { text-align: center; }
   .center .divider { margin: 28px auto; }
 
   p { margin: 0 0 24px; font-size: 1.05rem; line-height: 1.6; }
-  .center { text-align: center; }
   .center p { max-width: 500px; margin: 0 auto 36px; }
 
   .button {
     display: inline-block;
     min-width: 190px;
     padding: 16px 24px;
-    border: 2px solid var(--blue);
-    background: var(--blue);
-    color: var(--navy);
+    border: 2px solid var(--accent);
+    background: var(--accent);
+    color: var(--white);
     font-family: inherit;
     font-size: 1rem;
     font-weight: bold;
@@ -64,15 +66,14 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease;
   }
-  .button:hover { background: var(--white); border-color: var(--white); }
-  .button.secondary { background: transparent; color: var(--white); }
-  .button.secondary:hover { background: var(--white); color: var(--navy); }
+  .button:hover { background: transparent; color: var(--accent); }
+  .button.secondary { background: transparent; color: var(--accent); }
+  .button.secondary:hover { background: var(--accent); color: var(--white); }
 
   .links { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
 
-  /* ── screens ── */
   .screen { display: none; }
   .screen.on { display: block; }
 
@@ -81,15 +82,16 @@
     font-size: 0.85rem;
     font-weight: bold;
     letter-spacing: 0.15em;
-    color: var(--blue);
     text-transform: uppercase;
+    color: var(--accent);
     margin-bottom: 10px;
   }
   .progress { height: 4px; background: var(--line); margin-bottom: 30px; }
-  .progress span { display: block; height: 100%; width: 0; background: var(--blue); transition: width 0.3s ease; }
+  .progress span { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.3s ease; }
 
   .question {
     margin: 0 0 28px;
+    color: var(--navy);
     font-size: clamp(1.4rem, 4.5vw, 2rem);
     line-height: 1.25;
     letter-spacing: -0.02em;
@@ -104,23 +106,25 @@
     text-align: left;
     padding: 16px 18px;
     border: 2px solid var(--line);
-    background: transparent;
-    color: var(--white);
+    background: var(--white);
+    color: var(--text);
     font-family: inherit;
     font-size: 1rem;
     line-height: 1.45;
     cursor: pointer;
-    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+    transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
   }
-  .answer:hover { border-color: var(--blue); background: rgba(100,149,237,0.14); }
+  .answer:hover { border-color: var(--accent); }
   .answer:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
-  .answer b { color: var(--blue); font-size: 0.9rem; padding-top: 2px; }
-  .answer.picked { background: var(--blue); border-color: var(--blue); color: var(--navy); }
-  .answer.picked b { color: var(--navy); }
-  .answer.dim { opacity: 0.3; }
+  .answer b { color: var(--accent); font-size: 0.9rem; padding-top: 2px; }
+  .answer.picked { background: var(--navy); border-color: var(--navy); color: var(--white); }
+  .answer.picked b { color: var(--blue); }
+  .answer.dim { opacity: 0.35; }
   .answers.locked .answer { pointer-events: none; }
 
   /* ── crew page ── */
+  .band { height: 8px; background: var(--accent); margin-bottom: 26px; }
+
   .tabs { display: flex; border-bottom: 2px solid var(--line); margin-bottom: 34px; }
   .tab {
     flex: 1;
@@ -138,32 +142,34 @@
     cursor: pointer;
     transition: color 0.15s ease, border-color 0.15s ease;
   }
-  .tab:hover { color: var(--white); }
-  .tab.on { color: var(--white); border-bottom-color: var(--blue); }
+  .tab:hover { color: var(--navy); }
+  .tab.on { color: var(--accent); border-bottom-color: var(--accent); }
 
   .flag {
     font-size: 0.8rem;
     font-weight: bold;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--blue);
+    color: var(--accent);
     margin-bottom: 10px;
   }
 
-  .pitch { font-size: 1.15rem; font-weight: bold; margin: 0 0 18px; }
+  #crewName { color: var(--accent); }
+
+  .pitch { font-size: 1.15rem; font-weight: bold; color: var(--navy); margin: 0 0 18px; }
 
   .specs {
     display: flex;
-    gap: 28px;
+    gap: 26px;
     flex-wrap: wrap;
-    padding: 14px 0;
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
+    padding: 14px 16px;
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
     margin-bottom: 30px;
     font-size: 0.9rem;
     color: var(--dim);
   }
-  .specs b { color: var(--white); }
+  .specs b { color: var(--navy); }
 
   h2.sec {
     margin: 0 0 12px;
@@ -171,7 +177,7 @@
     font-weight: bold;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--blue);
+    color: var(--accent);
   }
   .block { margin-bottom: 30px; }
 
@@ -190,16 +196,14 @@
     top: 17px;
     width: 7px;
     height: 7px;
-    background: var(--blue);
+    background: var(--accent);
   }
 
   .score { display: flex; align-items: center; gap: 12px; padding: 6px 0; font-size: 0.9rem; }
   .score span:first-child { width: 120px; flex-shrink: 0; color: var(--dim); }
   .score .track { flex: 1; height: 8px; background: var(--line); }
-  .score .track i { display: block; height: 100%; width: 0; background: var(--blue); transition: width 0.6s ease; }
-  .score b { width: 16px; flex-shrink: 0; }
-
-  .foot { margin-top: 34px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .score .track i { display: block; height: 100%; width: 0; transition: width 0.6s ease; }
+  .score b { width: 16px; flex-shrink: 0; color: var(--navy); }
 
   @media (max-width: 500px) {
     .links { flex-direction: column; }
@@ -237,6 +241,7 @@
 
   <!-- ══ CREW ══ -->
   <section class="screen" id="crew">
+    <div class="band"></div>
     <div class="tabs" id="tabs"></div>
 
     <div class="flag" id="flag">Your best fit</div>
@@ -270,8 +275,6 @@
       <a class="button" id="email" href="mailto:bweaver@greermiddlecollege.org">Email Mr. Weaver</a>
       <button class="button secondary" id="again" onclick="restart()">Take it Again</button>
     </div>
-
-    <div class="foot"><p style="color:var(--dim);font-size:0.9rem;margin:0">Greer Middle College &middot; Blazer Pit Crew</p></div>
   </section>
 
 </main>
@@ -280,7 +283,8 @@
 const CREWS = {
   GM: {
     name: 'Game Masters',
-    tab: 'Game Masters',
+    accent: '#C0392B',
+    soft: 'rgba(192,57,43,0.08)',
     status: 'Returning crew',
     pitch: 'You run the floor and the microphone.',
     job: 'You open the rally, explain every game, and keep four hundred people loud. When a game ends two minutes early, those two minutes are yours to fill.',
@@ -299,7 +303,8 @@ const CREWS = {
   },
   AN: {
     name: 'Anchors',
-    tab: 'Anchors',
+    accent: '#1B4FA8',
+    soft: 'rgba(27,79,168,0.08)',
     status: 'New this year',
     pitch: 'Not the loudest voice in the gym. The one people trust.',
     job: 'Game Masters own the peaks. You own everything between them, including the gaps nobody planned for. New crew this year, so the first group sets the standard.',
@@ -318,7 +323,8 @@ const CREWS = {
   },
   PR: {
     name: 'Production',
-    tab: 'Production',
+    accent: '#0E6E66',
+    soft: 'rgba(14,110,102,0.08)',
     status: 'Returning crew',
     pitch: 'If nobody notices you, you nailed it.',
     job: 'Music, microphones, lights, and sound effects. The rally has a mood before anyone says a word, and you are the reason it has one.',
@@ -337,7 +343,8 @@ const CREWS = {
   },
   PO: {
     name: 'Promo',
-    tab: 'Promo',
+    accent: '#6B3FA0',
+    soft: 'rgba(107,63,160,0.08)',
     status: 'Returning crew',
     pitch: 'Nothing happens unless you make it happen.',
     job: 'You build the timeline and make sure every crew has what it needs on the day it needs it. Athletes staged, materials courtside, cleanup planned, story posted.',
@@ -358,6 +365,8 @@ const CREWS = {
 
 const ORDER = ['GM', 'AN', 'PR', 'PO'];
 const MARKS = ['A', 'B', 'C', 'D'];
+const NAVY = '#00205b';
+const NAVY_SOFT = 'rgba(0,32,91,0.08)';
 
 const QUESTIONS = [
   { text: "Someone unexpectedly hands you a microphone in front of 400 people. Your first instinct is...", answers: [
@@ -443,6 +452,11 @@ let locked = false;
 let winner = '';
 let browse = false;
 
+function setAccent(color, soft) {
+  document.documentElement.style.setProperty('--accent', color);
+  document.documentElement.style.setProperty('--accent-soft', soft);
+}
+
 function shuffle(a) {
   const b = [...a];
   for (let i = b.length - 1; i > 0; i--) {
@@ -462,6 +476,7 @@ function startQuiz() {
   browse = false;
   index = 0;
   scores = { GM: 0, AN: 0, PR: 0, PO: 0 };
+  setAccent(NAVY, NAVY_SOFT);
   show('quiz');
   loadQuestion();
 }
@@ -530,7 +545,8 @@ function renderCrewPage() {
       const row = document.createElement('div');
       row.className = 'score';
       row.innerHTML = '<span>' + CREWS[k].name + '</span>' +
-        '<span class="track"><i data-pct="' + (scores[k] / QUESTIONS.length) * 100 + '"></i></span>' +
+        '<span class="track"><i style="background:' + CREWS[k].accent +
+        '" data-pct="' + (scores[k] / QUESTIONS.length) * 100 + '"></i></span>' +
         '<b>' + scores[k] + '</b>';
       box.appendChild(row);
     });
@@ -542,7 +558,7 @@ function renderCrewPage() {
     const tab = document.createElement('button');
     tab.className = 'tab';
     tab.dataset.crew = k;
-    tab.textContent = CREWS[k].tab;
+    tab.textContent = CREWS[k].name;
     tab.addEventListener('click', () => openCrew(k));
     tabs.appendChild(tab);
   });
@@ -559,6 +575,7 @@ function renderCrewPage() {
 
 function openCrew(key) {
   const c = CREWS[key];
+  setAccent(c.accent, c.soft);
 
   document.getElementById('flag').textContent =
     (!browse && key === winner) ? 'Your best fit' : 'The crew';
@@ -594,6 +611,7 @@ function openCrew(key) {
 function restart() {
   if (browse) { startQuiz(); return; }
   document.getElementById('bar').style.width = '0%';
+  setAccent(NAVY, NAVY_SOFT);
   show('start');
 }
 </script>
